@@ -94,17 +94,17 @@ trait Utils
 
     public function searchLawyerCode($deal, $fields, $indexString): string
     {
-        if (!empty($deal['UF_CRM_1737037252'])) {
+        if (!empty($deal['UF_CRM_1746140099'])) {
             $index = array_search(
-                $deal['UF_CRM_1737037252'],
-                array_column($fields['UF_CRM_1737037252']['items'], 'ID')
+                $deal['UF_CRM_1746140099'],
+                array_column($fields['UF_CRM_1746140099']['items'], 'ID')
             );
 
-            if ($index !== false && isset($fields['UF_CRM_1737037252']['items'][$index]['VALUE'])) {
+            if ($index !== false && isset($fields['UF_CRM_1746140099']['items'][$index]['VALUE'])) {
                 // Pega a parte do valor após o primeiro '-' e antes do '|'
-                // 9.3.01.01 - SÃO PAULO 1 - MARCELO ARAÚJO - 20095 | 15
-                $value = $fields['UF_CRM_1737037252']['items'][$index]['VALUE'];
-                $codePart = explode("-", $value)[3] ?? '';
+                // Célula 1.1 - GABRIELA MARTINS SEQUEIRA - 19382 | 15
+                $value = $fields['UF_CRM_1746140099']['items'][$index]['VALUE'];
+                $codePart = explode("-", $value)[2] ?? '';
                 $code = explode("|", $codePart)[0] ?? '0';
 
                 return trim($code);
@@ -115,12 +115,12 @@ trait Utils
 
     public function searchLawyerCellCode($deal, $fields, $indexString): string
     {
-        if ($deal['UF_CRM_1737037252'] != "") {
+        if ($deal['UF_CRM_1746140099'] != "") {
             $index = array_search(
-                $deal['UF_CRM_1737037252'],
-                array_column($fields['UF_CRM_1737037252']['items'], 'ID')
+                $deal['UF_CRM_1746140099'],
+                array_column($fields['UF_CRM_1746140099']['items'], 'ID')
             );
-            $code = trim(explode("-", $fields['UF_CRM_1737037252']['items'][$index]['VALUE'])[3]) ?? "0";
+            $code = trim(explode("-", $fields['UF_CRM_1746140099']['items'][$index]['VALUE'])[2]) ?? "0";
             return trim(explode("|", $code)[$indexString]) ?? "0";
         }
         return "0";
@@ -128,12 +128,12 @@ trait Utils
 
     public function searchProduct(array $deal, array $fields, int $indexString): string
     {
-        foreach ($deal['UF_CRM_1586431691'] as $dealValue) {
-            // Procurar o valor dentro do array $fields['UF_CRM_1586431691']['items']
-            $index = array_search($dealValue, array_column($fields['UF_CRM_1586431691']['items'], 'ID'));
+        foreach ($deal['UF_CRM_1745521763'] as $dealValue) {
+            // Procurar o valor dentro do array $fields['UF_CRM_1745521763']['items']
+            $index = array_search($dealValue, array_column($fields['UF_CRM_1745521763']['items'], 'ID'));
             // Se o índice for encontrado, retornar o valor correspondente
             if ($index !== false) {
-                return trim(explode("-", $fields['UF_CRM_1586431691']['items'][$index]['VALUE'])[$indexString]) ?? "0";
+                return trim(explode("-", $fields['UF_CRM_1745521763']['items'][$index]['VALUE'])[$indexString]) ?? "0";
             }
         }
         return "0";

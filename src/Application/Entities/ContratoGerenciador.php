@@ -36,7 +36,7 @@ class ContratoGerenciador
             $this->isRadarCodeFilled($deal['ID'], 'Célula');
         }
 
-        $productRadarCode = $this->searchInEnumerations($deal['UF_CRM_1586431691'][0], $fields['UF_CRM_1586431691']);
+        $productRadarCode = $this->searchInEnumerations($deal['UF_CRM_1745521763'][0], $fields['UF_CRM_1745521763']);
         if (!$productRadarCode) {
             $this->isRadarCodeFilled($deal['ID'], 'Produto');
         }
@@ -49,26 +49,26 @@ class ContratoGerenciador
         );
 
         $finalDate = $this->dateNowAndAddDays($deal['DATE_CREATE'], 12);
-        $data = new DateTime($deal['UF_CRM_1554319921']);
+        $data = new DateTime($deal['UF_CRM_1746140206']);
 
         $this->bodyContratoGerenciador = [
-            'CPF_CNPJ_Cliente' => $deal['UF_CRM_1646233130394'],
+            'CPF_CNPJ_Cliente' => $deal['UF_CRM_1745494235'],
             'CodigoDocumento' => '004',
             'NumeroContrato' => $deal['UF_CRM_1561394928'],
             'CodigoFilial' => $lawyerCornerCode,
-            'DataContratoInicial' => date("d/m/Y", strtotime($deal['UF_CRM_1656425295'])),
+            'DataContratoInicial' => date("d/m/Y", strtotime($deal['UF_CRM_1746140492'])),
             'DataContratoFinal' => $finalDate['finalDate'],
-            'DataFaturamento' => date("d/m/Y", strtotime($deal['UF_CRM_1656425295'])),
+            'DataFaturamento' => date("d/m/Y", strtotime($deal['UF_CRM_1746140492'])),
             'DataVencimento' => $data->format('d/m/Y'),
             'DescricaoContrato' => $this->searchProduct($deal, $fields, 0),
-            'QuantidadeParcelas' => 0,
+            'QuantidadeParcelas' => $deal['UF_CRM_1746140160'],
             'Rateios' => [$listRateios],
             'Nome' => $company['TITLE'],
             'RazaoSocialCliente' => $company['TITLE'],
             'RenovacaoAutomatica' => true,
             'Situacao' => 1,
             'Classificacao' => $productRadarCode,
-            'TipoFaturamento' => 10, // $this->decideBillingType($deal["UF_CRM_1553026310"]),
+            'TipoFaturamento' => 10,
             'UtilizaParcelamento' => false,
             'ValorOriginal' => str_replace(".", ",", $deal["OPPORTUNITY"]),
             'DadosInfoPlus' => [
@@ -110,7 +110,7 @@ class ContratoGerenciador
                     "IdHeader" => 201,
                     "Obrigatorio" => true,
                     "TipoInfoPlus" => 4,
-                    "Valor" => (string)round(floatval(explode('| ', $deal['UF_CRM_1554319938'])[0]), 2)
+                    "Valor" => str_replace(".", ",", $deal['UF_CRM_1746140177'])
                 ],
                 [
                     "Descricao" => "Qtde Parcelas",
@@ -118,7 +118,7 @@ class ContratoGerenciador
                     "IdHeader" => 150,
                     "Obrigatorio" => true,
                     "TipoInfoPlus" => 3,
-                    "Valor" => (string)$deal['UF_CRM_1553026310']
+                    "Valor" => (string)$deal['UF_CRM_1746140160']
                 ],
                 [
                     "Descricao" => "Motivo do Cancelamento",
