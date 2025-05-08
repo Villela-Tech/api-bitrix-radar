@@ -34,11 +34,24 @@ trait Utils
 
     public function searchInEnumerations($valorDesejado, $enumeration)
     {
-        foreach ($enumeration['items'] as $item) {
-            if ($item['ID'] == $valorDesejado) {
-                return preg_replace('/[^0-9]/', '', $item['VALUE']);
+        // Se for um produto do catálogo
+        if (is_array($valorDesejado) && isset($valorDesejado['PRODUCT_NAME'])) {
+            // Exemplo: "GOLDEN - Laudo Revisão Capacidade - 887115"
+            $parts = explode("-", $valorDesejado['PRODUCT_NAME']);
+            $codigoRadar = end($parts);
+            return preg_replace('/[^0-9]/', '', $codigoRadar);
+        }
+
+        // Formato antigo (enumeração)
+        if (isset($enumeration['items'])) {
+            foreach ($enumeration['items'] as $item) {
+                if ($item['ID'] == $valorDesejado) {
+                    return preg_replace('/[^0-9]/', '', $item['VALUE']);
+                }
             }
         }
+
+        return "0";
     }
 
     public function decideBillingType($qttdParcelas): string
@@ -128,14 +141,29 @@ trait Utils
 
     public function searchProduct(array $deal, array $fields, int $indexString): string
     {
-        foreach ($deal['UF_CRM_1745521763'] as $dealValue) {
-            // Procurar o valor dentro do array $fields['UF_CRM_1745521763']['items']
-            $index = array_search($dealValue, array_column($fields['UF_CRM_1745521763']['items'], 'ID'));
-            // Se o índice for encontrado, retornar o valor correspondente
-            if ($index !== false) {
-                return trim(explode("-", $fields['UF_CRM_1745521763']['items'][$index]['VALUE'])[$indexString]) ?? "0";
+        // Se tiver produtos do catálogo
+        if (!empty($deal['PRODUCTS'])) {
+            foreach ($deal['PRODUCTS'] as $product) {
+                if (!empty($product['PRODUCT_NAME'])) {
+                    // Exemplo: "GOLDEN - Laudo Revisão Capacidade - 887115"
+                    $parts = explode("-", $product['PRODUCT_NAME']);
+                    if (isset($parts[$indexString])) {
+                        return trim($parts[$indexString]);
+                    }
+                }
             }
         }
+
+        // Fallback para o formato antigo (enumeração)
+        if (!empty($deal['UF_CRM_1745521763'])) {
+            foreach ($deal['UF_CRM_1745521763'] as $dealValue) {
+                $index = array_search($dealValue, array_column($fields['UF_CRM_1745521763']['items'], 'ID'));
+                if ($index !== false) {
+                    return trim(explode("-", $fields['UF_CRM_1745521763']['items'][$index]['VALUE'])[$indexString]) ?? "0";
+                }
+            }
+        }
+
         return "0";
     }
 }

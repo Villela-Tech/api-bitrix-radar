@@ -115,47 +115,55 @@ class BitrixRepository
                 "cmd2" => "user.get?ID={$deal['UF_CRM_1744295310']}", // Advogado Responsável
                 "cmd3" => "crm.deal.fields", // fields
                 "cmd4" => "user.get?ID={$deal['UF_CRM_1745432334']}", // Franqueado
+                "cmd5" => "crm.deal.productrows.get?id={$deal['ID']}" // Produtos do negócio
             ]
         ];
 
         $url = $_ENV['URL_BITRIX'] . $_ENV['TOKEN_BITRIX'] . $action;
         $result = $request->PostRequest($url, $body);
 
-        // Log do resultado e tratamento de erros específicos
-        if (isset($result['result']['result_error'])) {
-            $errors = $result['result']['result_error'];
-            $this->writeLogError(new Exception("Erros nas chamadas: " . json_encode($errors)), false);
-            
-            // Tratamento de erros específicos
-            if (isset($errors['cmd0']) && $errors['cmd0']['error_description'] === "Not found") {
-                throw new Exception("Empresa (ID: {$deal['COMPANY_ID']}) não encontrada no Bitrix", 500);
+        // Log do resultado da chamada batch
+        $this->writeLogError(new Exception("Resultado da chamada batch: " . json_encode([
+            'url' => $url,
+            'body' => $body,
+            'result' => $result
+        ], JSON_PRETTY_PRINT)), false);
+
+        // Verifica se houve erros nas chamadas
+        $erros = [];
+        if (isset($result['result']) && is_array($result['result'])) {
+            foreach ($result['result'] as $key => $value) {
+                if (isset($value['error'])) {
+                    $erros[] = "Erro em {$key}: " . json_encode($value);
+                }
             }
-            if (isset($errors['cmd1']) && $errors['cmd1']['error_description'] === "Not found") {
-                throw new Exception("Contato (ID: {$deal['CONTACT_ID']}) não encontrado no Bitrix", 500);
-            }
-            if (isset($errors['cmd2']) && $errors['cmd2']['error_description'] === "Not found") {
-                throw new Exception("Advogado Responsável (ID: {$deal['UF_CRM_1744295310']}) não encontrado no Bitrix", 500);
-            }
-            if (isset($errors['cmd4']) && $errors['cmd4']['error_description'] === "Not found") {
-                throw new Exception("Franqueado (ID: {$deal['UF_CRM_1745432334']}) não encontrado no Bitrix", 500);
-            }
+        }
+        
+        $this->writeLogError(new Exception("Erros nas chamadas: " . json_encode($erros)), false);
+
+        if (!empty($erros)) {
+            throw new Exception("Erros ao obter dados do Bitrix: " . implode(", ", $erros));
         }
 
-        if (count($result['result']['result_error']) == 0) {
-            return [
-                "Company" => $result['result']['result']['cmd0'],
-                "Contact" => $result['result']['result']['cmd1'],
-                "User" => $result['result']['result']['cmd2'][0],
-                "Fields" => $result['result']['result']['cmd3'],
-                "Franqueado" =>  $result['result']['result']['cmd4'][0]
-            ];
-        } else {
-            $listErrors = [];
-            foreach ($result['result']['result_error'] as $erro) {
-                $this->writeLogError($erro, true);
-                $listErrors[] = $erro['error'];
-            }
-            throw new Exception(json_encode($listErrors), 500);
+        // Extrai os produtos do resultado
+        $produtos = [];
+        if (isset($result['result']['result']['cmd5'])) {
+            $produtos = $result['result']['result']['cmd5'];
+            
+            // Log dos produtos encontrados
+            $this->writeLogError(new Exception("Produtos encontrados na chamada batch: " . json_encode([
+                'deal_id' => $deal['ID'],
+                'produtos' => $produtos
+            ], JSON_PRETTY_PRINT)), false);
         }
+
+        return [
+            'Company' => $result['result']['result']['cmd0'] ?? [],
+            'Contact' => $result['result']['result']['cmd1'] ?? [],
+            'User' => $result['result']['result']['cmd2'] ?? [],
+            'Fields' => $result['result']['result']['cmd3'] ?? [],
+            'Franqueado' => $result['result']['result']['cmd4'] ?? [],
+            'Products' => $produtos
+        ];
     }
 }
