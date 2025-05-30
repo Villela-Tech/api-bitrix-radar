@@ -21,27 +21,6 @@ class BitrixService
             $deal = $bitrixRepository->getDealById($id_deal);
             $entities = $bitrixRepository->batchRequest($deal);
 
-            // Log do deal antes de adicionar os produtos
-            $this->writeLogError(new Exception("Deal antes de adicionar produtos: " . json_encode([
-                'deal_id' => $deal['ID'],
-                'tem_produtos' => isset($deal['Products']) || isset($deal['PRODUCTS']),
-                'produtos_existentes' => $deal['Products'] ?? $deal['PRODUCTS'] ?? []
-            ], JSON_PRETTY_PRINT)), false);
-
-            // Adiciona os produtos ao deal
-            if (!empty($entities['Products'])) {
-                $deal['Products'] = $entities['Products'];
-                $deal['PRODUCTS'] = $entities['Products'];
-                
-                // Log dos produtos adicionados
-                $this->writeLogError(new Exception("Produtos adicionados ao deal: " . json_encode([
-                    'deal_id' => $deal['ID'],
-                    'produtos' => $entities['Products']
-                ], JSON_PRETTY_PRINT)), false);
-            } else {
-                $this->writeLogError(new Exception("Nenhum produto encontrado para o deal " . $deal['ID']), false);
-            }
-
             $CRFT = new CFRT($deal, $entities);
             $bodyCRFT = $CRFT->getBodyCFRT();
 
