@@ -15,8 +15,7 @@ $dotenv->load();
 // Instantiate the app
 
 $app = AppFactory::create();
-// $app->setBasePath('/br24_vilella');
-$app->setBasePath('/bitrix/integracao-radar-nbw'); // Produção
+$app->setBasePath('/integracaoradar'); // Novo caminho
 
 // Register routes
 $routes = require __DIR__ . '/../app/routes.php';

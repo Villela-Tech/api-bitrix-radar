@@ -36,8 +36,8 @@ class ContratoGerenciador
             $this->isRadarCodeFilled($deal['ID'], 'Célula');
         }
 
-        $productRadarCode = $this->searchInEnumerations($deal['UF_CRM_1586431691'][0], $fields['UF_CRM_1586431691']);
-        if (!$productRadarCode) {
+        $productName = $this->extractProductName($deal['UF_CRM_1748604707924']);
+        if (empty($productName) || $productName === "0") {
             $this->isRadarCodeFilled($deal['ID'], 'Produto');
         }
 
@@ -45,32 +45,38 @@ class ContratoGerenciador
             $deal['OPPORTUNITY'],
             $lawyerCornerCode,
             $lawyerCellCode,
-            $productRadarCode
+            $productName
         );
 
         $finalDate = $this->dateNowAndAddDays($deal['DATE_CREATE'], 12);
-        $data = new DateTime($deal['UF_CRM_1554319921']);
+        
+        // Usa a data de vencimento das parcelas
+        $dataVencimento = new DateTime($deal['UF_CRM_1746140206']);
+        $dataVencimentoFormatada = $dataVencimento->format('d/m/Y');
+        
+        $dataAdesao = new DateTime($deal['UF_CRM_1746140492']);
 
         $this->bodyContratoGerenciador = [
-            'CPF_CNPJ_Cliente' => $deal['UF_CRM_1646233130394'],
+            'CPF_CNPJ_Cliente' => $deal['UF_CRM_1745494235'],
             'CodigoDocumento' => '004',
-            'NumeroContrato' => $deal['UF_CRM_1561394928'],
+            'NumeroContrato' => $deal['UF_CRM_1746140348'],
             'CodigoFilial' => $lawyerCornerCode,
-            'DataContratoInicial' => date("d/m/Y", strtotime($deal['UF_CRM_1656425295'])),
+            'DataContratoInicial' => $dataAdesao->format('d/m/Y'),
             'DataContratoFinal' => $finalDate['finalDate'],
-            'DataFaturamento' => date("d/m/Y", strtotime($deal['UF_CRM_1656425295'])),
-            'DataVencimento' => $data->format('d/m/Y'),
-            'DescricaoContrato' => $this->searchProduct($deal, $fields, 0),
-            'QuantidadeParcelas' => 0,
+            'DataFaturamento' => $dataAdesao->format('d/m/Y'),
+            'DataVencimento' => $dataVencimentoFormatada,
+            'DescricaoContrato' => $this->extractProductName($deal['UF_CRM_1748604707924']),
+            'QuantidadeParcelas' => $deal['UF_CRM_1746139160'],
             'Rateios' => [$listRateios],
             'Nome' => $company['TITLE'],
             'RazaoSocialCliente' => $company['TITLE'],
             'RenovacaoAutomatica' => true,
             'Situacao' => 1,
-            'Classificacao' => $productRadarCode,
-            'TipoFaturamento' => 10, // $this->decideBillingType($deal["UF_CRM_1553026310"]),
+            'Classificacao' => $productName,
+            'TipoFaturamento' => $this->decideBillingType($deal['UF_CRM_1746139160']),
             'UtilizaParcelamento' => false,
             'ValorOriginal' => str_replace(".", ",", $deal["OPPORTUNITY"]),
+            'Produto' => $productName,
             'DadosInfoPlus' => [
                 [
                     "Descricao" => "Tipo Contrato",

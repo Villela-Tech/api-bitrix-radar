@@ -36,9 +36,10 @@ trait Utils
     {
         foreach ($enumeration['items'] as $item) {
             if ($item['ID'] == $valorDesejado) {
-                return preg_replace('/[^0-9]/', '', $item['VALUE']);
+                return $item['VALUE'];
             }
         }
+        return "";
     }
 
     public function decideBillingType($qttdParcelas): string
@@ -55,11 +56,22 @@ trait Utils
 
     public function listRateios($valorTotal, $lawyerCornerCode, $lawyerCellCode, $productRadarCode): array
     {
+        // Usa o código do produto extraído do campo UF_CRM_1748604707924
+        $codigoContaContabil = $productRadarCode;
+        
+        // Log dos valores que serão usados
+        $this->writeLogError(new \Exception(
+            "Valores para rateio: " .
+            "Produto: " . $codigoContaContabil . ", " .
+            "Corner: " . $lawyerCornerCode . ", " .
+            "Célula: " . $lawyerCellCode
+        ));
+        
         $listRateios = [
             'RateioContabil' => [
-                'CodigoConta' => $productRadarCode,
-                'CodigoDepartamento' => $productRadarCode,
-                'CodigoFilial' => $lawyerCornerCode,
+                'CodigoConta' => $codigoContaContabil,      // código do produto (857367)
+                'CodigoDepartamento' => $codigoContaContabil,// código do produto (857367)
+                'CodigoFilial' => $lawyerCornerCode,        // código do corner (15)
                 'CodigoHistorico' => '',
                 'CodigoRequisitante' => '',
                 'Quantidade' => 1,
@@ -67,9 +79,9 @@ trait Utils
             ],
             'RateiosGerenciais' => [
                 [
-                    'CodigoDepartamento' => $lawyerCellCode,
-                    'CodigoFilial' => $lawyerCornerCode,
-                    'CodigoConta' => $lawyerCellCode,
+                    'CodigoDepartamento' => $lawyerCellCode, // código da célula (18448)
+                    'CodigoFilial' => $lawyerCornerCode,     // código do corner (15)
+                    'CodigoConta' => $lawyerCellCode,        // código da célula (18448)
                     'CodigoHistorico' => '',
                     'CodigoRequisitante' => '',
                     'Quantidade' => 1,
@@ -77,6 +89,10 @@ trait Utils
                 ]
             ]
         ];
+
+        // Log do objeto completo que será enviado
+        $this->writeLogError(new \Exception("Objeto rateios: " . json_encode($listRateios)));
+        
         return $listRateios;
     }
 
@@ -94,20 +110,11 @@ trait Utils
 
     public function searchLawyerCode($deal, $fields, $indexString): string
     {
-        if (!empty($deal['UF_CRM_1737037252'])) {
-            $index = array_search(
-                $deal['UF_CRM_1737037252'],
-                array_column($fields['UF_CRM_1737037252']['items'], 'ID')
-            );
-
-            if ($index !== false && isset($fields['UF_CRM_1737037252']['items'][$index]['VALUE'])) {
-                // Pega a parte do valor após o primeiro '-' e antes do '|'
-                // 9.3.01.01 - SÃO PAULO 1 - MARCELO ARAÚJO - 20095 | 15
-                $value = $fields['UF_CRM_1737037252']['items'][$index]['VALUE'];
-                $codePart = explode("-", $value)[3] ?? '';
-                $code = explode("|", $codePart)[0] ?? '0';
-
-                return trim($code);
+        if (!empty($deal['UF_CRM_1746140099'])) {
+            $celulaTexto = $this->searchInEnumerations($deal['UF_CRM_1746140099'], $fields['UF_CRM_1746140099']);
+            // Extrai o código do Radar (18448) que vem antes do |
+            if (preg_match('/- (\d+) \|/', $celulaTexto, $matches)) {
+                return $matches[1]; // Retorna o código do Radar (18448)
             }
         }
         return "0";
@@ -115,13 +122,16 @@ trait Utils
 
     public function searchLawyerCellCode($deal, $fields, $indexString): string
     {
-        if ($deal['UF_CRM_1737037252'] != "") {
-            $index = array_search(
-                $deal['UF_CRM_1737037252'],
-                array_column($fields['UF_CRM_1737037252']['items'], 'ID')
-            );
-            $code = trim(explode("-", $fields['UF_CRM_1737037252']['items'][$index]['VALUE'])[3]) ?? "0";
-            return trim(explode("|", $code)[$indexString]) ?? "0";
+        if (!empty($deal['UF_CRM_1746140099'])) {
+            $celulaTexto = $this->searchInEnumerations($deal['UF_CRM_1746140099'], $fields['UF_CRM_1746140099']);
+            
+            // Log do texto completo da célula
+            $this->writeLogError(new \Exception("Texto da célula: " . $celulaTexto));
+            
+            // Extrai o número após o | (ex: "... | 15" -> "15")
+            if (preg_match('/\| (\d+)$/', $celulaTexto, $matches)) {
+                return $matches[1];
+            }
         }
         return "0";
     }
@@ -136,6 +146,26 @@ trait Utils
                 return trim(explode("-", $fields['UF_CRM_1586431691']['items'][$index]['VALUE'])[$indexString]) ?? "0";
             }
         }
+        return "0";
+    }
+
+    public function extractProductName($bbcodeTable): string
+    {
+        if (empty($bbcodeTable)) {
+            return "0";
+        }
+        
+        // Remove as tags BBCode e pega apenas o conteúdo do produto
+        preg_match('/\[td\](.*?)\[\/td\]/', $bbcodeTable, $matches);
+        
+        if (isset($matches[1])) {
+            // Extrai apenas o código numérico após o hífen
+            if (preg_match('/- (\d+)/', $matches[1], $codeMatches)) {
+                return $codeMatches[1];
+            }
+            return trim($matches[1]);
+        }
+        
         return "0";
     }
 }

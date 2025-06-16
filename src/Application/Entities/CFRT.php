@@ -18,31 +18,32 @@ class CFRT
 
     private function handleBodyCFRT($deal, $company, $contact, $fields, $user, $franqueado)
     {
-        $codeCategoriaRadar = $this->searchInEnumerations($deal['UF_CRM_5C4863CF06985'], $fields['UF_CRM_5C4863CF06985']);
+        $codeCategoriaRadar = $this->searchInEnumerations($deal['UF_CRM_1744295310'], $fields['UF_CRM_1744295310']);
         $lawyerRadarCode = $this->searchLawyerCode($deal, $fields, 1);
 
         $this->body = [
             "Categoria1" => $codeCategoriaRadar, // regiões
-            "CPF_CNPJ" => $deal['UF_CRM_5C474435A75C9'],
+            "CPF_CNPJ" => $deal['UF_CRM_1745494235'],
             "Cliente" => true,
             "TipoPessoa" => 74,
-            "Nome" => $company['UF_CRM_1638447301'],
-            "RazaoSocial" => $company['UF_CRM_1638447301'],
+            "Nome" => $deal['TITLE'],
+            "RazaoSocial" => $deal['TITLE'],
             "Contato" => $contact['NAME'],
             "EnderecoPadrao" => [
-                "CEP" => $company['UF_CRM_1638447403'],
-                "DDDTelefone" => $deal['UF_CRM_1656337400'],
-                "Telefone" => $deal['UF_CRM_1656337464'],
+                "CEP" => $deal['UF_CRM_1748021587'],
+                "DDDTelefone" => $deal['UF_CRM_1746140439'],
+                "Telefone" => $deal['UF_CRM_1746140456'],
                 "Email" => $company['EMAIL'][0]['VALUE'] ?? '',
-                "Endereco" => $deal['UF_CRM_1646233040913'],
-                "Cidade" => $deal['UF_CRM_1646233089039'],
-                "NumeroEndereco" => $deal['UF_CRM_1646233049988'],
-                "Bairro" => $deal['UF_CRM_1646233078922'],
-                "UF" => $deal['UF_CRM_1646233101098'],
+                "Endereco" => $deal['UF_CRM_1746146377'],
+                "Cidade" => $deal['UF_CRM_1746146397'],
+                "NumeroEndereco" => $deal['UF_CRM_1746146377'],
+                "Bairro" => $deal['UF_CRM_1746146387'],
+                "UF" => $deal['UF_CRM_1748021665'],
             ],
             "Representantes" => [
                 [
-                    "Codigo" => $franqueado['UF_XING']
+                    // "Codigo" => $franqueado['UF_XING'], // Campo original comentado para teste
+                    "Codigo" => "491133" // Valor fixo temporário
                 ]
             ],
             "Vendedores" => [
