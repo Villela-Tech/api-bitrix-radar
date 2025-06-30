@@ -60,12 +60,12 @@ Sistema de integração entre o CRM Bitrix24 e o sistema Radar para gerenciament
 | Data Inicial | BEGINDATE | Data de início do negócio | "2025-05-21" |
 | Data Final | CLOSEDATE | Data de fechamento prevista | "2025-05-28" |
 
-### Dados de Célula/Corner
+### Dados de Célula/Corner/Franqueado
 | Campo Bitrix | ID do Campo | Descrição | Exemplo |
 |-------------|-------------|-----------|---------|
-| Célula | UF_CRM_1746140099 | Código da célula (lista) | "231" |
+| Célula | UF_CRM_1746140099 | Código da célula (lista) | "Célula 1.17 - ANA PAULA PAZZIN BITTENCOURT - 18448 | 15" |
 | Produto | UF_CRM_1748604707924 | Código do produto em formato BBCode | "[table]...[/table]" |
-| Franqueado | UF_USR_1689948220200 | Código do franqueado | "491133" |
+| Franqueado | UF_CRM_1750679348 | Código do franqueado (lista) | "ALTAIR ROBERTO FERREIRA JUNIOR | 943760" |
 
 ### Dados de Contato
 | Campo Bitrix | ID do Campo | Descrição | Exemplo |
@@ -84,7 +84,7 @@ Sistema de integração entre o CRM Bitrix24 e o sistema Radar para gerenciament
 |-------|-----------|-------------|---------|
 | Tipo Contrato | Tipo do contrato | Não | "" |
 | Valor no Exito (%) | Percentual de êxito | Não | "" |
-| Franqueado | Código do franqueado | Sim | "491133" |
+| Franqueado | Código do franqueado | Sim | "943760" |
 | Mês Venda | Mês/Ano da venda | Sim | "05/2025" |
 | Valor da Parcela | Valor de cada parcela | Sim | Calculado do valor total |
 | Qtde Parcelas | Número de parcelas | Sim | "4" |
@@ -123,6 +123,7 @@ Sistema de integração entre o CRM Bitrix24 e o sistema Radar para gerenciament
 2. O código da célula é extraído do campo UF_CRM_1746140099 que é um campo de lista
 3. O código do corner é extraído do mesmo campo, após o caractere "|"
 4. O código do produto é extraído do campo UF_CRM_1748604707924 em formato BBCode
+5. O código do franqueado é extraído do campo UF_CRM_1750679348 após o caractere "|"
 
 ## Exemplos de Valores
 
@@ -136,6 +137,10 @@ Formato no Bitrix: "Célula 1.17 - ANA PAULA PAZZIN BITTENCOURT - 18448 | 15"
 [table][tr][th]Produto[/th][th]Valor[/th][/tr][tr][td]VERDE REGULARIZE - 857367[/td][td]R$ 3.000[/td][/tr][/table]
 ```
 - Código do Produto: 857367
+
+### Campo de Franqueado (UF_CRM_1750679348)
+Formato no Bitrix: "ALTAIR ROBERTO FERREIRA JUNIOR | 943760"
+- Código do Franqueado: 943760
 
 ## Possíveis Erros e Soluções
 

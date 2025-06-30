@@ -20,6 +20,7 @@ class CFRT
     {
         $codeCategoriaRadar = $this->searchInEnumerations($deal['UF_CRM_1744295310'], $fields['UF_CRM_1744295310']);
         $lawyerRadarCode = $this->searchLawyerCode($deal, $fields, 1);
+        $franqueadoCode = $this->searchFranqueadoCode($deal, $fields);
 
         $this->body = [
             "Categoria1" => $codeCategoriaRadar, // regiões
@@ -42,8 +43,7 @@ class CFRT
             ],
             "Representantes" => [
                 [
-                    // "Codigo" => $franqueado['UF_XING'], // Campo original comentado para teste
-                    "Codigo" => "491133" // Valor fixo temporário
+                    "Codigo" => $franqueadoCode
                 ]
             ],
             "Vendedores" => [

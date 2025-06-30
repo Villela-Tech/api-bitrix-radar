@@ -168,4 +168,20 @@ trait Utils
         
         return "0";
     }
+
+    public function searchFranqueadoCode($deal, $fields): string
+    {
+        if (!empty($deal['UF_CRM_1750679348'])) {
+            $franqueadoTexto = $this->searchInEnumerations($deal['UF_CRM_1750679348'], $fields['UF_CRM_1750679348']);
+            
+            // Log do texto completo do franqueado
+            $this->writeLogError(new \Exception("Texto do franqueado: " . $franqueadoTexto));
+            
+            // Extrai o código do franqueado que vem após o | (formato: "NOME | CÓDIGO")
+            if (preg_match('/\|\s*(\d+)$/', $franqueadoTexto, $matches)) {
+                return $matches[1];
+            }
+        }
+        return "0";
+    }
 }
